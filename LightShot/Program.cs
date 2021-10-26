@@ -9,6 +9,8 @@ namespace LightShot
 {
     class Program
     {
+        private static readonly string lightShotURL = "https://prnt.sc/";
+
         static void Main(string[] args)
         {
             Console.Write("1-Open image in browser; 2-Download image to folder: ");
@@ -32,10 +34,10 @@ namespace LightShot
 
             while (true)
             {
-                string random_symbols = "1";
+                string random_symbols = "";
 
-                for (int i = 0; i < 5; i++)
-                    random_symbols += Convert.ToString(GetLetter());
+                for (int i = 0; i < 6; i++)
+                    random_symbols += Convert.ToString(GetSymbol());
 
                 string img_url = doSearchImage(random_symbols);
                 DownloadImage(img_url, random_symbols, path_to_save);
@@ -53,10 +55,10 @@ namespace LightShot
 
             while (true)
             {
-                string random_url = "https://prnt.sc/1";
+                string random_url = lightShotURL;
 
-                for (int i = 0; i < 5; i++)
-                    random_url += Convert.ToString(GetLetter());
+                for (int i = 0; i < 6; i++)
+                    random_url += Convert.ToString(GetSymbol());
 
                 Console.WriteLine(random_url);
                 OpenUrl(random_url);
@@ -64,9 +66,9 @@ namespace LightShot
             }
         }
 
-        public static char GetLetter()
+        public static char GetSymbol()
         {
-            string chars = "abcdefghijklmnopqrstuvwxyz";
+            string chars = "1234567890abcdefghijklmnopqrstuvwxyz";
             Random rand = new Random();
             int num = rand.Next(0, chars.Length);
             return chars[num];
@@ -74,20 +76,18 @@ namespace LightShot
 
         public static string doSearchImage(string symbols)
         {
-            string url = "https://prnt.sc/" + symbols;
-            Console.WriteLine("Random url: " + url);
+            string url = lightShotURL + symbols;
+            string img_src = "";
+
+            Console.WriteLine("INFO: random url: " + url);
 
             WebClient web_client = new WebClient();
             web_client.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36 Edg/95.0.1020.30";
-
             string html = web_client.DownloadString(url);
-
             Regex r = new Regex("<img.+?src=[\"'](.+?)[\"'].*?>", RegexOptions.IgnoreCase);
             Match m = r.Match(html);
 
-            string img_src = "";
             if (m.Success) img_src = (m.Groups[1].Value);
-
             return img_src;
         }
 
@@ -97,13 +97,18 @@ namespace LightShot
 
             using (WebClient wc = new WebClient())
             {
-                Console.WriteLine("Downloading image from url: " + image_url);
-                wc.DownloadFile(
-                    // Param1 = Link of file
-                    new Uri(image_url),
-                    // Param2 = Path to save
-                    path_to_save + "\\"+ symbols + ".png"
-                );
+                try
+                {
+                    Console.WriteLine("INFO: downloading image from: " + image_url);
+                    wc.DownloadFile(
+                        new Uri(image_url),
+                        path_to_save + "\\" + symbols + ".png"
+                    );
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("WARN:" + e.Message);
+                }
             }
         }
 
@@ -113,7 +118,7 @@ namespace LightShot
             {
                 Process.Start(url);
             }
-            catch
+            catch (Exception e)
             {
                 // hack because of this: https://github.com/dotnet/corefx/issues/10361
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -131,7 +136,7 @@ namespace LightShot
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine("WARN:" + e.Message);
                 }
             }
         }
