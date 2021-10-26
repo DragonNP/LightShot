@@ -39,7 +39,7 @@ namespace LightShot
                 for (int i = 0; i < 6; i++)
                     random_symbols += Convert.ToString(GetSymbol());
 
-                string img_url = doSearchImage(random_symbols);
+                string img_url = DoSearchImage(random_symbols);
                 DownloadImage(img_url, random_symbols, path_to_save);
 
                 Console.WriteLine();
@@ -74,7 +74,7 @@ namespace LightShot
             return chars[num];
         }
 
-        public static string doSearchImage(string symbols)
+        public static string DoSearchImage(string symbols)
         {
             string url = lightShotURL + symbols;
             string img_src = "";
